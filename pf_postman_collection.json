@@ -1,0 +1,884 @@
+{
+  "info": {
+    "name": "PF API - Comprehensive Test Suite",
+    "description": "Coleção completa para testar a API REST de usuários e projetos. Execute as requisições na ordem: primeiro crie usuário e projeto, depois teste as operações. As variáveis created_user_id e created_project_id são automaticamente definidas pelos testes.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "2.1.0"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "admin_id",
+      "value": "1"
+    },
+    {
+      "key": "user_id",
+      "value": "2"
+    },
+    {
+      "key": "created_user_id",
+      "value": ""
+    },
+    {
+      "key": "created_project_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "0️⃣ Setup - Criar recursos base",
+      "description": "Execute estas requisições primeiro para criar usuário e projeto que serão usados nos testes",
+      "item": [
+        {
+          "name": "🚀 Criar usuário para testes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-USER-ID",
+                "value": "{{admin_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Usuário Teste\",\n  \"cpf\": \"12345678901\",\n  \"papel\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.collectionVariables.set('created_user_id', responseJson.id);",
+                  "    console.log('Usuário criado com ID:', responseJson.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "🚀 Criar projeto para testes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-USER-ID",
+                "value": "{{admin_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Projeto Teste\",\n  \"descricao\": \"Projeto para testes\",\n  \"usuarioIds\": [1]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/projetos",
+              "host": ["{{base_url}}"],
+              "path": ["projetos"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.collectionVariables.set('created_project_id', responseJson.id);",
+                  "    console.log('Projeto criado com ID:', responseJson.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "1️⃣ Public Access (GET)",
+      "description": "Testes de acesso público - GET não exige autenticação",
+      "item": [
+        {
+          "name": "GET Listar usuários - Sem header",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Buscar usuário - Sem header",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["users", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET Listar projetos - Sem header",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/projetos",
+              "host": ["{{base_url}}"],
+              "path": ["projetos"]
+            }
+          },
+          "response": []
+        },
+    {
+      "name": "GET Buscar projeto - Sem header",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/projetos/{{created_project_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["projetos", "{{created_project_id}}"]
+        }
+      },
+      "response": []
+    }
+      ]
+    },
+    {
+      "name": "2️⃣ User Management - CRUD",
+      "description": "Operações de CRUD para usuários (requer X-USER-ID de ADMIN)",
+      "item": [
+        {
+          "name": "✅ POST Criar usuário - Sucesso",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-USER-ID",
+                "value": "{{admin_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Novo Usuário\",\n  \"cpf\": \"22222222222\",\n  \"papel\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.collectionVariables.set('created_user_id', responseJson.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "✅ PUT Atualizar usuário - Sucesso",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-USER-ID",
+                "value": "{{admin_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Usuário Atualizado\",\n  \"cpf\": \"22222222222\",\n  \"papel\": \"ADMIN\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/{{created_user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["users", "{{created_user_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "✅ DELETE Excluir usuário - Sucesso",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-USER-ID",
+                "value": "{{admin_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/{{created_user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["users", "{{created_user_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3️⃣ Project Management - CRUD",
+      "description": "Operações de CRUD para projetos (requer X-USER-ID de ADMIN)",
+      "item": [
+        {
+          "name": "✅ POST Criar projeto - Sucesso",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-USER-ID",
+                "value": "{{admin_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Projeto Beta\",\n  \"descricao\": \"Novo projeto\",\n  \"usuarioIds\": [1]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/projetos",
+              "host": ["{{base_url}}"],
+              "path": ["projetos"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.collectionVariables.set('created_project_id', responseJson.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "✅ PUT Atualizar projeto - Sucesso",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-USER-ID",
+                "value": "{{admin_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Projeto Beta Atualizado\",\n  \"descricao\": \"Descrição atualizada\",\n  \"usuarioIds\": [1]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/projetos/{{created_project_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["projetos", "{{created_project_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "✅ DELETE Excluir projeto - Sucesso",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-USER-ID",
+                "value": "{{admin_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/projetos/{{created_project_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["projetos", "{{created_project_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4️⃣ User-Project Relationships",
+      "description": "Adicionar/remover usuários de projetos (requer X-USER-ID de ADMIN)",
+      "item": [
+        {
+          "name": "✅ POST Adicionar usuário ao projeto - Sucesso",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-USER-ID",
+                "value": "{{admin_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/projetos/{{created_project_id}}/usuarios/{{created_user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["projetos", "{{created_project_id}}", "usuarios", "{{created_user_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "✅ DELETE Remover usuário do projeto - Sucesso",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-USER-ID",
+                "value": "{{admin_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/projetos/{{created_project_id}}/usuarios/{{created_user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["projetos", "{{created_project_id}}", "usuarios", "{{created_user_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5️⃣ Authentication Errors (401)",
+      "description": "Testes de endpoints que exigem X-USER-ID mas não possuem header",
+      "item": [
+        {
+          "name": "❌ POST Criar usuário - Sem X-USER-ID",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Novo Usuário\",\n  \"cpf\": \"22222222222\",\n  \"papel\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "❌ PUT Atualizar usuário - Sem X-USER-ID",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Usuário\",\n  \"cpf\": \"11111111111\",\n  \"papel\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["users", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "❌ DELETE Excluir usuário - Sem X-USER-ID",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/2",
+              "host": ["{{base_url}}"],
+              "path": ["users", "2"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "❌ POST Criar projeto - Sem X-USER-ID",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Novo Projeto\",\n  \"descricao\": \"Teste\",\n  \"usuarioIds\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/projetos",
+              "host": ["{{base_url}}"],
+              "path": ["projetos"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "❌ POST Adicionar usuário ao projeto - Sem X-USER-ID",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/projetos/1/usuarios/1",
+              "host": ["{{base_url}}"],
+              "path": ["projetos", "1", "usuarios", "1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "6️⃣ Authorization Errors (403)",
+      "description": "Testes com usuário comum (não ADMIN) tentando operações restritas",
+      "item": [
+        {
+          "name": "❌ POST Criar usuário - Usuário comum",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-USER-ID",
+                "value": "{{user_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Novo Usuário\",\n  \"cpf\": \"33333333333\",\n  \"papel\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "❌ PUT Atualizar usuário - Usuário comum",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-USER-ID",
+                "value": "{{user_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Usuário\",\n  \"cpf\": \"11111111111\",\n  \"papel\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["users", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "❌ DELETE Excluir usuário - Usuário comum",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-USER-ID",
+                "value": "{{user_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/2",
+              "host": ["{{base_url}}"],
+              "path": ["users", "2"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "❌ POST Criar projeto - Usuário comum",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-USER-ID",
+                "value": "{{user_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Novo Projeto\",\n  \"descricao\": \"Teste\",\n  \"usuarioIds\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/projetos",
+              "host": ["{{base_url}}"],
+              "path": ["projetos"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "❌ DELETE Excluir projeto - Usuário comum",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-USER-ID",
+                "value": "{{user_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/projetos/1",
+              "host": ["{{base_url}}"],
+              "path": ["projetos", "1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "7️⃣ Resource Not Found (404)",
+      "description": "Testes para recursos inexistentes",
+      "item": [
+        {
+          "name": "❌ GET Buscar usuário inexistente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/99999",
+              "host": ["{{base_url}}"],
+              "path": ["users", "99999"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "❌ PUT Atualizar usuário inexistente",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-USER-ID",
+                "value": "{{admin_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Usuário\",\n  \"cpf\": \"99999999999\",\n  \"papel\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/99999",
+              "host": ["{{base_url}}"],
+              "path": ["users", "99999"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "❌ DELETE Excluir usuário inexistente",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-USER-ID",
+                "value": "{{admin_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/99999",
+              "host": ["{{base_url}}"],
+              "path": ["users", "99999"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "❌ GET Buscar projeto inexistente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/projetos/99999",
+              "host": ["{{base_url}}"],
+              "path": ["projetos", "99999"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "❌ POST Adicionar usuário a projeto inexistente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-USER-ID",
+                "value": "{{admin_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/projetos/99999/usuarios/1",
+              "host": ["{{base_url}}"],
+              "path": ["projetos", "99999", "usuarios", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "❌ POST Adicionar usuário inexistente ao projeto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-USER-ID",
+                "value": "{{admin_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/projetos/1/usuarios/99999",
+              "host": ["{{base_url}}"],
+              "path": ["projetos", "1", "usuarios", "99999"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "❌ DELETE Remover usuário de projeto inexistente",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-USER-ID",
+                "value": "{{admin_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/projetos/99999/usuarios/1",
+              "host": ["{{base_url}}"],
+              "path": ["projetos", "99999", "usuarios", "1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "8️⃣ Validation Errors (400)",
+      "description": "Testes de validação de entrada",
+      "item": [
+        {
+          "name": "❌ POST Criar usuário - Nome vazio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-USER-ID",
+                "value": "{{admin_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"\",\n  \"cpf\": \"44444444444\",\n  \"papel\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "❌ POST Criar usuário - CPF vazio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-USER-ID",
+                "value": "{{admin_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Usuário\",\n  \"cpf\": \"\",\n  \"papel\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "❌ POST Criar usuário - CPF duplicado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-USER-ID",
+                "value": "{{admin_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Outro Usuário\",\n  \"cpf\": \"00000000000\",\n  \"papel\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "❌ POST Criar projeto - Nome vazio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-USER-ID",
+                "value": "{{admin_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"\",\n  \"descricao\": \"Descrição\",\n  \"usuarioIds\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/projetos",
+              "host": ["{{base_url}}"],
+              "path": ["projetos"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "❌ POST Criar projeto - Descrição vazia",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-USER-ID",
+                "value": "{{admin_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Projeto\",\n  \"descricao\": \"\",\n  \"usuarioIds\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/projetos",
+              "host": ["{{base_url}}"],
+              "path": ["projetos"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
